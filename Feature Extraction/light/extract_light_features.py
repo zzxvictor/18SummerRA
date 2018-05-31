@@ -10,7 +10,16 @@ Aurthor: Victor Zixuan Zhang
 import os
 import pandas 
 import re
+from sys import argv
 
+"""
+load the light.csv file and return the dataframe
+parameters:
+    dataDirectory: the path to the file
+    dataFile: the file's name(it should be light.csv)
+return:
+    dataFrame: the data in the dataFile
+"""
 def loadFile(dataDirectory, dataFile):
     print ("*************************************************")
     print ("reading input")
@@ -28,7 +37,14 @@ def loadFile(dataDirectory, dataFile):
     #return the dataFrame
     return dataFrame
     
-    
+"""
+load the minew-owl map file, creates a map (macAddress as keys and locations as values) and return the map
+parameters:
+    mapDirectory: the path to the file
+    mapFile: the file's name(it should be minews_owl_map.csv)
+return:
+    macLocMap: the mac-location dictionary
+"""
 def loadMap(mapDirectory, mapFile):
     print ("*************************************************")
     print ("reading map")
@@ -47,7 +63,16 @@ def loadMap(mapDirectory, mapFile):
     macLocMap = dict(zip(macAdress, location))
     #return the dataFrame
     return macLocMap
-    
+
+"""
+check the quiet hour according to them light out information provided by nurses
+parameters:
+    time: the timePoint you want to check
+    loc: the location you want to check 
+return:
+    0: light on
+    1: light off
+"""
 def checkQuietHour(time,loc):
     location = loc.split(':')
     hour = re.split('[-T:.]', time)[3]
@@ -60,14 +85,32 @@ def checkQuietHour(time,loc):
         return 1
     else:
         return 0
-    
+
+"""
+check the physical location of a sensor using its macAddress and the mac-loc map 
+parameter:
+    macAddress: the macAddress of the sensor 
+    mapFrame: the mac-loc dictionary 
+return:
+    location: the location of the sensor
+    if not found, return 'keck:mac:not:found' (sometimes it does happen...)
+"""
 def checkLoc(macAddress, mapFrame):
     location = mapFrame.get(macAddress)
     if location == None:
         return 'keck:mac:not:found'
     else:
         return location
+    
+"""
+control the code flow, connect each functions together
+parameter:
+    dataFrame: the raw data read from the original light.csv file
+    mapFrame: the map created by the loadMap function 
+return :
+    N/A
 
+"""
 def process(dataFrame, mapFrame, newDirectory):
     print ("*************************************************")
     print ("processing")
@@ -82,6 +125,7 @@ def process(dataFrame, mapFrame, newDirectory):
         #replace the macAddress with its physical location
         loc = checkLoc( macAddress[row],mapFrame)
         if loc == 'keck:mac:not:found':
+            #print (macAddress[row])
             continue 
         else:
             location.append(loc)
@@ -96,7 +140,15 @@ def process(dataFrame, mapFrame, newDirectory):
     d = {'quietHour': quietHour ,'timeStamp':timeStamp, 'sensorLocation':location}
     newDataFrame= pandas.DataFrame(data = d)
     saveFiles(newDataFrame, newDirectory)
-    
+
+"""
+save the modified light.csv files
+parameters:
+    data: the data you want to save
+    directory: where do you want to put the file
+return:
+    N/A
+"""  
 def saveFiles(data, directory):
     print ("*************************************************")
     print ("saving files")
@@ -110,16 +162,19 @@ def saveFiles(data, directory):
     os.chdir(currentDirectory)
     print ("done")
     
-def main():
-    dataDirectory = '/Users/victorzhang/Desktop/Research/TILES/minew'
-    dataFile = 'keck:floor6:north:ns01_feature.csv'
-    mapDirectory = '/Users/victorzhang/Desktop/Research/TILES/minew'
-    mapFile = 'minews_owl_map.csv'
-    dataFrame = loadFile(dataDirectory, dataFile)
-    mapFrame = loadMap(mapDirectory, mapFile)
-    process(dataFrame, mapFrame, dataDirectory)
+def main(fileName, dataDirectory, mapName, mapDirectory, newDirectory):
+    dataFrame = loadFile(dataDirectory, fileName)
+    mapFrame = loadMap(mapDirectory, mapName)
+    process(dataFrame, mapFrame, newDirectory)
 
-main()
-    
-    
-    
+if __name__ == '__main__':
+    if len(argv) < 6:
+        print ('please input parameters in this format: ')
+        print ('the name of the file that contains light sensors data + its directory(absolute path) + minew-owl-maps name + its path + the folder in which you out the new results ')
+    else:
+        fileName = argv[1]
+        dataDirectory =argv[2]
+        mapName = argv[3]
+        mapDirectory = argv[4]
+        newDirectory = argv[5]
+        main (fileName, dataDirectory, mapName, mapDirectory, newDirectory)
