@@ -10,6 +10,7 @@ import os
 import pandas
 import collections 
 from sys import argv
+import numpy
 #load the data, pass it into a list 
 def loadData(fileName):
     print ("*************************************************")
@@ -27,9 +28,11 @@ def loadData(fileName):
    
     #clear the bogus sensors
     macAddress = accData['macAddress']
+    print (numpy.unique(macAddress))
+    print (len (numpy.unique(macAddress)))
     cnt = collections.Counter (macAddress )
     for k, v in cnt.items():
-        if v > 500:
+        if v > 1000:
             sensors.append (k)
     print ('sensor num: ' + str(len(sensors)))
     df = accData.set_index(['macAddress'])  
@@ -54,20 +57,21 @@ def saveData(classfiedData, sensors, reference):
     buffer = dict()
     for mac in sensors:
         loc = reference.get(mac)
+        if loc is None:
+            loc = 'lol'
         fileName = loc +'_features' +'.csv'
         df = pandas.DataFrame(classfiedData[counter])
         if loc in buffer:
             print ("got a repeated location")
             #open the already existed file 
-            #append to the end 
-            with open(fileName, 'a') as f:
-                df.to_csv(f, header=False, sep = ',')
-                print (loc)             
+            #append to the end
+            fileName = loc + '_1_features' + '.csv'
+            df.to_csv(fileName, header=False, sep = ',')            
         else:
             buffer.update ({loc: 1})
-            counter += 1
-            df.to_csv(fileName, sep=',')
             
+            df.to_csv(fileName, sep=',')
+        counter += 1
     print (str(counter) + " files are created with locations as file names")
     print ("done")
     print ("*************************************************")

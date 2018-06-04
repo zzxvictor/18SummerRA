@@ -216,6 +216,7 @@ return
 def getTemHumValue(timePoint, location, nurseID, iMap):
     #get the dataFrame using keys
     dataFrame = iMap.get(nurseID)
+    #location not found
     if dataFrame is None:
          return numpy.nan
     #search the dataFrame using binary search 
@@ -249,9 +250,10 @@ return
 def getLightValue (timePoint, location, iMap):
     #get the dataFrame using keys
     dataFrame = iMap.get(location)
+    #if the location is not on the map
     if dataFrame is None:
-        #print ('*****'+location + '*****')
-        return numpy.nan
+        #split the location
+        return 0
     timeList = dataFrame[0]
     lightList = dataFrame[1]
     del dataFrame
@@ -289,9 +291,20 @@ return
 def getDistractionValue(timePoint, location, iMap, window):
     #get the dataFrame using keys
     dataFrame = iMap.get(location)
+    sumList = []
     if dataFrame is None :
         #print ('----'+location + '----')
-         return numpy.nan
+         #split the location
+        loc = location.split (':')[:-1]
+        #find the adjecent locations 
+        adjecent = ":".join(loc )
+        for key in iMap:
+            if key.startswith(adjecent):
+                sumList.append(getDistractionValue(timePoint, key, iMap, window))
+        if len(sumList) == 0:
+            return numpy.nan
+        else:
+            return sum(sumList)/len(sumList)
     #search the dataFrame using binary search 
     first = 0
     last = int (len(dataFrame))
@@ -380,6 +393,7 @@ return:
 def saveAFile(newName, dataFrame, directory):
     print ("fliename:" + newName)
     print ("directory:" + directory)
+    print (dataFrame)
     currentPath = os.getcwd()
     os.chdir(directory)
     dataFrame.to_csv(newName, sep = ',', index = False )

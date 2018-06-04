@@ -14,6 +14,7 @@ from statistics import mode
 import numpy
 from sys import argv
 
+listA = []
 """
     read filenames in the given folder and store them in a list 
     Parameter: N/A
@@ -29,7 +30,8 @@ def readNamesOfAllFiles(path):
     #currentPath = os.getcwd()
     #print ("Current path: " + currentPath)
     #only .csv files remains
-    fileNames = [x for x in os.listdir(path) if x.endswith(".csv")]
+    #fileNames = [x for x in os.listdir(path) if x.endswith("_features.csv")]
+    fileNames = ['keck:floor5:south:ns02_features.csv', 'keck:floor5:south:ns01_features.csv', 'keck:floor5:south:med5146_features.csv', 'keck:floor6:south:med6133_features.csv']
     print("All .csv files under this path: ")
     print(fileNames)
     #drop files (i.e. temp_hum.csv)
@@ -74,6 +76,7 @@ def readFiles(openFile, fileNameList, path):
 """
 def dataAnalysis(accData):
     #a for loop, go through all items in the list
+    global listA 
     for data in accData:
         #load the features
         aX = data['accelerationX']
@@ -132,6 +135,7 @@ def dataAnalysis(accData):
                 
         #show the histgram         
         n,b,p = plt.hist(deriThetaList, bins = 51, range = (-1.5,1.5))
+        listA.append (max(n)/ len (data))
         plt.ylabel("Time Appears")
         plt.xlabel("d(theta)/dt")
         plt.title("histogram ")
@@ -163,7 +167,7 @@ def dataAnalysis(accData):
         plt.show()
         print ('*********************************')
         
-            
+    print (listA)
     return accData
 
 """
@@ -238,9 +242,13 @@ def findKthBin(arr, k):
 """
 def addLabelToFiles(labledData, openFile, accDataFile, currentPath):
     i = 0
+    global listA 
+    mxi = max (listA)
     for index in openFile:
         #open the corresponding file:
         fileName = accDataFile[index]
+        if listA[index] == mxi:
+            print (fileName)
         labledData[i].to_csv(fileName, sep = ',',index = False)
         #print (labledData[i])
         i = i+1
