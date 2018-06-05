@@ -31,11 +31,15 @@ def readNamesOfAllFiles(path):
     #print ("Current path: " + currentPath)
     #only .csv files remains
     #fileNames = [x for x in os.listdir(path) if x.endswith("_features.csv")]
-    fileNames = ['keck:floor5:south:ns02_features.csv', 'keck:floor5:south:ns01_features.csv', 'keck:floor5:south:med5146_features.csv', 'keck:floor6:south:med6133_features.csv']
+    #fileNames = ['keck:floor2:southBLOOD:lounge01_features.csv', 'keck:floor2:southBLOOD:lounge01_1_features.csv']
+    #fileNames = ['keck:floor2:west:med2344_features.csv', 'keck:floor2:west:med2344_1_features.csv']
+    #fileNames = ['keck:floor5:east:med5343_features.csv', 'keck:floor5:north:med5232_features.csv', 'keck:floor5:north:med5232_1_features.csv']
+    fileNames = ['keck:floor5:south:med5146_features.csv', 'keck:floor5:south:ns01_features.csv', 'keck:floor5:south:ns02_features.csv']
+    #fileNames = ['keck:floor5:west:med5334_features.csv', 'keck:floor5:west:ns01_features.csv', 'keck:floor5:west:ns03_features.csv']
     print("All .csv files under this path: ")
     print(fileNames)
     #drop files (i.e. temp_hum.csv)
-    dropList = ['light.csv','motion.csv','temperature_humidity.csv']
+    dropList = ['minews_owl_map_v2.csv','motion.csv']
     fileNameSet = set(fileNames) - set(dropList)
     
     #return the filenames 
@@ -57,7 +61,9 @@ def readNamesOfAllFiles(path):
 def readFiles(openFile, fileNameList, path):
     dataList = []
     for item in openFile:
-        tempData = pandas.read_csv(fileNameList[item], index_col = False ,sep = ',')
+        print (fileNameList[item])
+        tempData = pandas.read_csv(fileNameList[item])
+        
         tempData = tempData[['Timestamp','macAddress','accelerationX', 'accelerationY', 'accelerationZ']]
         dataList.append(tempData)
     
@@ -74,11 +80,12 @@ def readFiles(openFile, fileNameList, path):
     return:
         accData: the processed data with a new column called "status"
 """
-def dataAnalysis(accData):
+def dataAnalysis(accData, fileNames):
     #a for loop, go through all items in the list
     global listA 
-    for data in accData:
+    for data, file in zip (accData, fileNames):
         #load the features
+        print (file)
         aX = data['accelerationX']
         aY = data['accelerationY']
         aZ = data['accelerationZ']
@@ -262,7 +269,7 @@ def main(path):
     accDataFile = readNamesOfAllFiles(path)
     openFile = range(len(accDataFile))
     accData = readFiles(openFile, accDataFile, path)
-    labledData = dataAnalysis(accData)
+    labledData = dataAnalysis(accData, accDataFile)
     addLabelToFiles(labledData, openFile, accDataFile, currentPath)
     
     

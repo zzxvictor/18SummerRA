@@ -32,9 +32,10 @@ def loadData(fileName):
     print (len (numpy.unique(macAddress)))
     cnt = collections.Counter (macAddress )
     for k, v in cnt.items():
-        if v > 1000:
+        if v > 500:
             sensors.append (k)
     print ('sensor num: ' + str(len(sensors)))
+    print (sensors)
     df = accData.set_index(['macAddress'])  
     #put data of the same node into one list
     try:
@@ -58,15 +59,15 @@ def saveData(classfiedData, sensors, reference):
     for mac in sensors:
         loc = reference.get(mac)
         if loc is None:
-            loc = 'lol'
-        fileName = loc +'_features' +'.csv'
+            loc = mac + '_NNNN'
+        fileName = loc   + '_features' +'.csv'
         df = pandas.DataFrame(classfiedData[counter])
         if loc in buffer:
             print ("got a repeated location")
             #open the already existed file 
             #append to the end
             fileName = loc + '_1_features' + '.csv'
-            df.to_csv(fileName, header=False, sep = ',')            
+            df.to_csv(fileName, sep = ',')            
         else:
             buffer.update ({loc: 1})
             
@@ -99,7 +100,7 @@ def main(address):
     #change to the new directory 
     os.chdir(address)
     fileName = 'motion.csv'
-    mapFile = 'minews_owl_map.csv'
+    mapFile = 'minews_owl_map_v2.csv'
     classfiedData, sensors = loadData(fileName)
     reference = readMap(mapFile)
     saveData(classfiedData, sensors, reference)
