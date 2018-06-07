@@ -10,6 +10,13 @@ import json
 import os
 import pandas 
 import sys
+import pytz
+from datetime  import datetime
+import glob
+
+from_zone = pytz.utc
+to_zone = pytz.timezone("America/Los_Angeles")
+
 """
 laod Json File 
 parameter:
@@ -149,8 +156,7 @@ def createDataFrame(participantID,onlineID, timeZone,gender, dob, picture, edu, 
     #load posts 
     for eachPost in postList:
         Type = 'post'
-        time = eachPost['created_time']
-        time = time.split('+')[0]
+        time = convertUTCtoLocal(eachPost['created_time'])
         try:
             message = eachPost['message']
         except:
@@ -166,7 +172,7 @@ def createDataFrame(participantID,onlineID, timeZone,gender, dob, picture, edu, 
     
     for eachEvent in eventList:
         Type = 'event'
-        time = eachEvent['start_time'][0:-5]
+        time = convertUTCtoLocal(eachEvent['start_time'])
         rsvp = eachEvent['rsvp_status']
         eventName = eachEvent['name']
         try:
@@ -201,7 +207,21 @@ def saveCSV(fileName, data, outputFolder):
     data.to_csv(fileName, sep = ',', index = False)
     os.chdir(current)
     
-    
+"""
+convert xx time to local time 
+parameter:
+    utc: a time string with format: '%Y-%m-%dT%H:%M:%S.%f'
+return:
+    local time with the same format
+"""
+
+def convertUTCtoLocal(timeInOtherZone):
+    #utc = utc.split('+')[0]
+    timeObj = datetime.strptime(timeInOtherZone, '%Y-%m-%dT%H:%M:%S%z')
+    #utc = utc.replace(tzinfo=from_zone)
+    local = timeObj.astimezone(to_zone)
+    return (local.strftime('%Y-%m-%dT%H:%M:%S.%f'))
+
 def main (fileName, directory, outputFolder):
     """
     fileName = 'facebook.jsonl'
