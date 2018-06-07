@@ -143,10 +143,10 @@ return:
     personalDataFrame: a personal file contains different features, ready to stored as csv files
 """
 def createDataFrame(participantID,onlineID, timeZone,gender, dob, picture, edu, location, isVerified, postList, eventList, likes, friends):
-    personalInfor = [ 'facebookID', 'timeZone','gender', 'likes', 'friendsNumber','birthday', 'profilePicture', 'education', 'isVerified']
-    post = [ 'postMessage', 'postStory']
-    event = ['eventName', 'eventLocation', 'eventRSVPStatus', 'eventLongitude', 'eventLatitude']
-    instant = ['Timestamp', 'type']
+    personalInfor = [ 'facebookID', 'facebookTimeZone','facebookUserGender', 'facebookLikesCount', 'facebookFriendsNumber','facebookUserBirthday', 'facebookProfilePicture', 'facebookEducationList', 'facebookAcountIsVerified']
+    post = [ 'facebookPostMessage', 'facebookPostStory']
+    event = ['facebookEventName', 'facebookEventLocation', 'facebookEventRSVPStatus', 'facebookEventLongitude', 'facebookEventLatitude']
+    instant = ['Timestamp', 'facebookActivityType']
     featureList = instant + personalInfor + post + event 
     personalData = [ onlineID, timeZone,gender, likes, friends,dob, picture, edu, isVerified]
     blankPostData = [None, None]
