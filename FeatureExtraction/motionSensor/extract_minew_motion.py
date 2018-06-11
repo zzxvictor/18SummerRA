@@ -34,8 +34,9 @@ def readNamesOfAllFiles(path):
     #fileNames = ['keck:floor2:southBLOOD:lounge01_features.csv', 'keck:floor2:southBLOOD:lounge01_1_features.csv']
     #fileNames = ['keck:floor2:west:med2344_features.csv', 'keck:floor2:west:med2344_1_features.csv']
     #fileNames = ['keck:floor5:east:med5343_features.csv', 'keck:floor5:north:med5232_features.csv', 'keck:floor5:north:med5232_1_features.csv']
-    fileNames = ['keck:floor5:south:med5146_features.csv', 'keck:floor5:south:ns01_features.csv', 'keck:floor5:south:ns02_features.csv']
+    #fileNames = ['keck:floor5:south:med5146_features.csv', 'keck:floor5:south:ns01_features.csv', 'keck:floor5:south:ns02_features.csv']
     #fileNames = ['keck:floor5:west:med5334_features.csv', 'keck:floor5:west:ns01_features.csv', 'keck:floor5:west:ns03_features.csv']
+    fileNames = ['keck:floor7:east:med7335_features.csv']
     print("All .csv files under this path: ")
     print(fileNames)
     #drop files (i.e. temp_hum.csv)
