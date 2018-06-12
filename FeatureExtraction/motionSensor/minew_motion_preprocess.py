@@ -92,26 +92,32 @@ def readMap (fileName):
     
     
 #run the program
-def main(address):
+def main():
+    fileAddress = '/home/victor/Desktop/TILES/data/light'
+    mapAddress = '/home/victor/Desktop/TILES/data/owl_minew_map'
+    outputAddress = '/home/victor/Desktop/TILES/data/owl_minew_map/light'
     classfiedData = []
     sensors = []
     #save the current path
     currentAd = os.getcwd()
     #change to the new directory 
-    os.chdir(address)
-    fileName = 'motion.csv'
+    os.chdir(fileAddress)
+    fileName = 'light.csv'
     mapFile = 'minews_owl_map_v2.csv'
     classfiedData, sensors = loadData(fileName)
+    os.chdir(mapAddress)
     reference = readMap(mapFile)
+    os.chdir(outputAddress)
     saveData(classfiedData, sensors, reference)
     #go back to the orginal path 
     os.chdir(currentAd)
-
+main()
+'''
 if __name__ == "__main__":
     if len(argv) < 2:
         print ("please input the directory of the files you want to process:")
     address = argv[1]
     print ("the address is: " + str(address))
     main(address)
-
+'''
 

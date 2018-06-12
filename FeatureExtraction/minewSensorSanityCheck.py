@@ -15,7 +15,6 @@ def scanFolder ():
     filesList =  glob.glob('*.csv')
     return filesList
 def loadCSV(fileName):
-    #print ('File name : %s has been opened' %fileName)
     dataFrame = pandas.read_csv(fileName, sep = ',')
     return (dataFrame)
     
@@ -51,8 +50,8 @@ def createReport (length, start, stop, log, fileName):
     print ('***********end***********')
     print ('')
 def main():
-    tempHumFolder = '/Users/victorzhang/Desktop/Research/TILES/data/minew/minew-processed/temHumFeature'
-    lightFolder = '/Users/victorzhang/Desktop/Research/TILES/data/minew/minew-processed/lightFeature'
+    tempHumFolder = '/home/victor/Desktop/TILES/data/owl_minew_map/temp'
+    lightFolder = '/home/victor/Desktop/TILES/data/owl_minew_map/light'
     #for the tempHum sensors
     os.chdir (tempHumFolder)
     filesList = scanFolder ()
@@ -61,7 +60,7 @@ def main():
         length = checkLength(dataFrame)
         start, stop, log = checkContinuity(dataFrame)
         #plots 
-        if len(log) > 3:
+        if log != []:
             createReport (length, start, stop, log, file)
         #print ('**********done*************')
     #for the light sensors 
