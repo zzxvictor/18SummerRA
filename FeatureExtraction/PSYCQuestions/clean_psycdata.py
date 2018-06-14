@@ -6,8 +6,7 @@ Created on Mon Jun 11 12:48:44 2018
 @author: victor
 """
 
-#load the entire folder
-#split into different files 
+
 import os
 import pandas 
 from sys import argv
@@ -23,6 +22,7 @@ def loadData(fileName, directory):
     #read data
     accData = pandas.read_csv(fileName, sep = ',')
     #drop unnamed column
+    accData = accData.drop(columns = ['Unnamed: 0'])
     #clear the bogus sensors
     temp = accData['participant_id']
     accData = accData.reset_index(drop = True)
@@ -44,10 +44,11 @@ def saveCSV(fileName, data):
     print (data)     
     data.to_csv(fileName, sep=',', index = False)
 
-def main():
-    fileName = 'app_surveys.csv'
-    directory = '/home/victor/Desktop/TILES/data/INTERPRETATION'
-    output = '/home/victor/Desktop/TILES/data/INTERPRETATION/processed'
+def main(fileName,directory , output):
+    
+    #fileName = 'app_surveys.csv'
+    #directory = '/Users/victorzhang/Desktop/Research/TILES/data/psyc'
+    #output = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/processed'
     myMap = loadData(fileName, directory)
     currentPath = os.getcwd()
     os.chdir(output)
@@ -55,4 +56,14 @@ def main():
         fileName = key + '_survey_features.csv'
         saveCSV(fileName, myMap[key])
     os.chdir(currentPath)
-main()
+
+        
+if __name__ == '__main__':
+    if len(argv) < 4:
+        print ('please input parameters in this format: ')
+        print ('file you want to clena + path to the files + output path (absolute path, no stuff like ./)')
+    else:
+        fileName = argv[1]
+        fileAddress = argv[2]
+        outputAddress =argv[3]
+        main (fileName, fileAddress, outputAddress)
