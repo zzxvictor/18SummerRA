@@ -52,24 +52,25 @@ return:
     newDataFrame
 '''
 def featureExtractions(dataFrame):
-    headerFormat = ['surveyType','surveyID','testStartedLocalTime','durationInMinutes']
+    headerFormat = ['Timestamp', 'surveyType','durationInSeconds']
     activityFormat = ['workBeforeSurvey', 'onPhoneBeforeSurvey', 'interactWithPeopleBeforeSurvey', 'sportBeforeSurvey', 'shoppingBeforeSurvey', 'diningBeforeSurvey', 'householingBeforeSurvey', 'familyBeforeSurvey', 'personalActivityBeforeSurvey', 'educationBeforeSurvey', 'transportBeforeSurvey', 'orgActivityBeforeSurvey', 'unKnownBeforeSurvey']
     pfFormat = ['psycFlexPositiveEmotionasBeforeSurvey', 'psycFlexNegativeEmotionasBeforeSurvey','psycFlexScore']
-    engageFormat = ['psycCapSurveyEnvironment', 'psycCapWorkEngagementScore', 'psycCapPSYCAPScore', 'pyscCapInterpersonalSupportSCore', 'psycCapChallengeStressorScore', 'psycCapHindranceStressorScore']
-    overallFormat = headerFormat+ activityFormat + pfFormat + engageFormat
+    environmentFormat = ['surveyAtHome', 'surveyAtWork', 'surveyInDoors', 'SurveyInAVehicle', 'surveyAtOtherPlaces']
+    engageFormat = [ 'psycCapWorkEngagementScore', 'psycCapPSYCAPScore', 'pyscCapInterpersonalSupportSCore', 'psycCapChallengeStressorScore', 'psycCapHindranceStressorScore']
+    
+    overallFormat = headerFormat+ activityFormat + pfFormat + environmentFormat + engageFormat
     newDataFrame = pandas.DataFrame(columns = overallFormat)
     #each survey
     newDataFrame = pandas.DataFrame()
     for counter in range (len(dataFrame)):
         surveyType = dataFrame['survey_type'][counter]
-        surveyID = dataFrame['survey_id'][counter]
         dictString = dataFrame['results'][counter]
         results = ast.literal_eval(dictString)
         startedTime = convertToLocalTime(dataFrame['started_ts_utc'][counter])
         completedTime = convertToLocalTime(dataFrame['completed_ts_utc'][counter])
         duration = getDuration (startedTime, completedTime)
-        defaultPFAnswer, defaultENGANswer,activity= convertSurveyResultsToNumbers(results, surveyType, engageFormat, pfFormat,activityFormat )
-        head = [surveyType, surveyID,startedTime, duration] 
+        defaultPFAnswer, defaultENGANswer,activity= convertSurveyResultsToNumbers(results, surveyType, engageFormat, pfFormat,activityFormat , environmentFormat)
+        head = [startedTime,surveyType, duration] 
         #convet to dataframe
         suum = head + activity + defaultPFAnswer + defaultENGANswer
 
@@ -92,7 +93,7 @@ def getDuration(startTime, stopTime):
     start = datetime.strptime(startTime, strFormat)
     stop = datetime.strptime(stopTime, strFormat)
     td =  (stop - start).seconds
-    return td/60
+    return td
 '''
 convert utc time to local time (Los Angeles)(defined above near the import statements)
 parameter:
@@ -152,6 +153,16 @@ def convertEmotions(option):
         else:
             negative += 1
     return [positve/4, negative/10]
+
+def convertLocations(option, format):
+    defaultAnswer = [None for i in range (len(format)) ]
+    if option in [0,1,2,3,4]:
+        defaultAnswer[option] = 1
+    else:
+        defaultAnswer[-1] = None 
+    
+    return defaultAnswer
+        
 '''
 conver other results to features
 parameter:
@@ -162,7 +173,7 @@ parameter:
 return:
     features in a list
 '''
-def convertSurveyResultsToNumbers(result, surveyType, engageFormat, pfFormat, activityFormat):
+def convertSurveyResultsToNumbers(result, surveyType, engageFormat, pfFormat, activityFormat, environmentFormat):
     if surveyType == 'psych_flex':
         
         activity = convertActivity (result.get('1'), activityFormat)
@@ -171,9 +182,9 @@ def convertSurveyResultsToNumbers(result, surveyType, engageFormat, pfFormat, ac
         for keys in result:
             if keys != '1' and keys != '2':
                 flex.append(result.get(keys))
-        return emotions + [sum(flex)/len(flex)],[None for x in range (len(engageFormat))],activity
+        return emotions + [sum(flex)/len(flex)],[None for x in range (len(environmentFormat + engageFormat))],activity
     elif surveyType == 'engage_psycap':
-        locations = result.get('1')
+        locations = convertLocations (result.get('1'), environmentFormat)
         activity = convertActivity (result.get('1'), activityFormat)
         engagement = []
         for keys in ['3','4','5']:
@@ -217,7 +228,7 @@ def convertSurveyResultsToNumbers(result, surveyType, engageFormat, pfFormat, ac
         except:
             hindrance = None 
             
-        return [None for x in range (len(pfFormat))],[locations,engagement, cap, personalsupport, challenge, hindrance],activity
+        return [None for x in range (len(pfFormat))],locations+ [engagement, cap, personalsupport, challenge, hindrance],activity
     else:
         print ('error')
         
