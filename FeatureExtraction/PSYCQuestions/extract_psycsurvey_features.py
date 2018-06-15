@@ -10,6 +10,7 @@ import os
 import pytz
 import dateutil.parser
 import ast
+from datetime import datetime 
 from sys import argv
 
 from_zone = pytz.utc
@@ -51,9 +52,9 @@ return:
     newDataFrame
 '''
 def featureExtractions(dataFrame):
-    headerFormat = ['surveyType','surveyID', 'testDelieveredLocalTime','testStartedLocalTime','testCompletedLocalTime', 'testIngestedLocalTime']
+    headerFormat = ['surveyType','surveyID','testStartedLocalTime','durationInMinutes']
     activityFormat = ['workBeforeSurvey', 'onPhoneBeforeSurvey', 'interactWithPeopleBeforeSurvey', 'sportBeforeSurvey', 'shoppingBeforeSurvey', 'diningBeforeSurvey', 'householingBeforeSurvey', 'familyBeforeSurvey', 'personalActivityBeforeSurvey', 'educationBeforeSurvey', 'transportBeforeSurvey', 'orgActivityBeforeSurvey', 'unKnownBeforeSurvey']
-    pfFormat = ['psycFlexEmotionasBeforeSurvey', 'psycFlexScore']
+    pfFormat = ['psycFlexPositiveEmotionasBeforeSurvey', 'psycFlexNegativeEmotionasBeforeSurvey','psycFlexScore']
     engageFormat = ['psycCapSurveyEnvironment', 'psycCapWorkEngagementScore', 'psycCapPSYCAPScore', 'pyscCapInterpersonalSupportSCore', 'psycCapChallengeStressorScore', 'psycCapHindranceStressorScore']
     overallFormat = headerFormat+ activityFormat + pfFormat + engageFormat
     newDataFrame = pandas.DataFrame(columns = overallFormat)
@@ -64,12 +65,11 @@ def featureExtractions(dataFrame):
         surveyID = dataFrame['survey_id'][counter]
         dictString = dataFrame['results'][counter]
         results = ast.literal_eval(dictString)
-        delieveredTime = convertToLocalTime(dataFrame['delivered_ts_utc'][counter])
         startedTime = convertToLocalTime(dataFrame['started_ts_utc'][counter])
         completedTime = convertToLocalTime(dataFrame['completed_ts_utc'][counter])
-        ingestedTime = convertToLocalTime(dataFrame['ingested_ts_utc'][counter])
+        duration = getDuration (startedTime, completedTime)
         defaultPFAnswer, defaultENGANswer,activity= convertSurveyResultsToNumbers(results, surveyType, engageFormat, pfFormat,activityFormat )
-        head = [surveyType, surveyID, delieveredTime, startedTime, completedTime, ingestedTime] 
+        head = [surveyType, surveyID,startedTime, duration] 
         #convet to dataframe
         suum = head + activity + defaultPFAnswer + defaultENGANswer
 
@@ -80,6 +80,19 @@ def featureExtractions(dataFrame):
     newDataFrame = newDataFrame[overallFormat]
     return newDataFrame
 
+'''
+calculate the duration of the survey
+parameter: 
+    startTime, stopTime
+return:
+    duration: in minutes
+'''
+def getDuration(startTime, stopTime):
+    strFormat = '%Y-%m-%dT%H:%M:%S.%f'
+    start = datetime.strptime(startTime, strFormat)
+    stop = datetime.strptime(stopTime, strFormat)
+    td =  (stop - start).seconds
+    return td/60
 '''
 convert utc time to local time (Los Angeles)(defined above near the import statements)
 parameter:
@@ -117,7 +130,28 @@ def convertActivity (option, acformat):
     
     return defaultAnswer
 
-
+'''
+convert question 2 in psy flex questionnaire to two useable features: positive emotions and negative emotions
+schema: count the number of positive and negative answers and divided by total number of positive and negative questions
+parameter:
+    participant's answer
+return:
+    [positive emotions, negative emotions]
+'''
+def convertEmotions(option):
+    negative = 0
+    positve = 0
+    if option == None:
+        return [None, None]
+    elif type(option) is int:
+        option = [option]
+    
+    for choice in option:
+        if choice in [1,3,5,7]:
+            positve += 1
+        else:
+            negative += 1
+    return [positve/4, negative/10]
 '''
 conver other results to features
 parameter:
@@ -132,12 +166,12 @@ def convertSurveyResultsToNumbers(result, surveyType, engageFormat, pfFormat, ac
     if surveyType == 'psych_flex':
         
         activity = convertActivity (result.get('1'), activityFormat)
-        emotions = result.get('2')
+        emotions = convertEmotions(result.get('2'))
         flex = []
         for keys in result:
             if keys != '1' and keys != '2':
                 flex.append(result.get(keys))
-        return [emotions, sum(flex)/len(flex)],[None for x in range (len(engageFormat))],activity
+        return emotions + [sum(flex)/len(flex)],[None for x in range (len(engageFormat))],activity
     elif surveyType == 'engage_psycap':
         locations = result.get('1')
         activity = convertActivity (result.get('1'), activityFormat)
@@ -199,8 +233,8 @@ def saveFile(data, fileName, output):
     
 def main (fileAddress, outputAddress):
     
-    #fileAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/processed'
-    #outputAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/complete'
+    fileAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/processed'
+    outputAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/complete'
     fileList = getFileNames(fileAddress)
     for file in fileList:
         dataFrame = loadData(file)
