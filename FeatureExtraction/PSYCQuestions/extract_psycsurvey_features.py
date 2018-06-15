@@ -244,8 +244,8 @@ def saveFile(data, fileName, output):
     
 def main (fileAddress, outputAddress):
     
-    fileAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/processed'
-    outputAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/complete'
+    #fileAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/processed'
+    #outputAddress = '/Users/victorzhang/Desktop/Research/TILES/data/psyc/complete'
     fileList = getFileNames(fileAddress)
     for file in fileList:
         dataFrame = loadData(file)
