@@ -22,7 +22,7 @@ def loadData(fileName, directory):
     #read data
     accData = pandas.read_csv(fileName, sep = ',')
     #drop unnamed column
-    accData = accData.drop(columns = ['Unnamed: 0'])
+    #accData = accData.drop(columns = ['Unnamed: 0'])
     #clear the bogus sensors
     temp = accData['participant_id']
     accData = accData.reset_index(drop = True)
