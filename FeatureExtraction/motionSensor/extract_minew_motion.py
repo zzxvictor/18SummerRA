@@ -9,6 +9,8 @@ For TILES accelerometry data
 import os
 import pandas
 import math
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from statistics import mode
 import numpy
