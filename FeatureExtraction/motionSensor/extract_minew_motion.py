@@ -131,10 +131,10 @@ def dataAnalysis(accData):
                 
         #show the histgram         
         n,b,p = plt.hist(deriThetaList, bins = 51, range = (-1.5,1.5))
-        plt.ylabel("Time Appears")
-        plt.xlabel("d(theta)/dt")
-        plt.title("histogram ")
-        plt.show()
+        #plt.ylabel("Time Appears")
+        #plt.xlabel("d(theta)/dt")
+        #plt.title("histogram ")
+        #plt.show()
         #decide the appropriate threshold for this file
         threshold = dynamicThreshold(n,b)
         print (threshold)
@@ -153,13 +153,13 @@ def dataAnalysis(accData):
         data['status'] = label 
         
         #show a small portion of the data 
-        plt.plot(deriThetaList[5200:5400])
-        plt.plot(thresh[5200:5400])
-        plt.xlabel("samples")
-        plt.ylabel("d(theta)/dt")
-        plt.legend(("angle deriv","threshold"),loc='upper right')
-        plt.title("sample of angle derivatives ")
-        plt.show()
+        #plt.plot(deriThetaList[5200:5400])
+        #plt.plot(thresh[5200:5400])
+        #plt.xlabel("samples")
+        #plt.ylabel("d(theta)/dt")
+        #plt.legend(("angle deriv","threshold"),loc='upper right')
+        #plt.title("sample of angle derivatives ")
+        #plt.show()
         print ('*********************************')
         
             
