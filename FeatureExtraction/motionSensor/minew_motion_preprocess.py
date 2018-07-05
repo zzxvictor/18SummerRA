@@ -103,9 +103,9 @@ def main(fileAddress, mapAddress, outputAddress):
     #os.chdir(fileAddress)
     #fileName = 'light.csv'
     #mapFile = 'minews_owl_map_v2.csv'
-    classfiedData, sensors = loadData(fileName)
+    classfiedData, sensors = loadData(fileAddress)
     #os.chdir(mapAddress)
-    reference = readMap(mapFile)
+    reference = readMap(mapAddress)
     #os.chdir(outputAddress)
     saveData(outputAddress, classfiedData, sensors, reference)
     #go back to the orginal path 
