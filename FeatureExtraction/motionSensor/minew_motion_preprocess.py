@@ -51,7 +51,7 @@ def loadData(fileName):
 
     
 #save the data into different files
-def saveData(classfiedData, sensors, reference):
+def saveData(outPath, classfiedData, sensors, reference):
     print ("*************************************************")
     print ("saving files")
     counter = 0
@@ -67,11 +67,10 @@ def saveData(classfiedData, sensors, reference):
             #open the already existed file 
             #append to the end
             fileName = loc + '_1_features' + '.csv'
-            df.to_csv(fileName, sep = ',')            
+            df.to_csv(outPath + '/' + fileName, sep = ',')            
         else:
             buffer.update ({loc: 1})
-            
-            df.to_csv(fileName, sep=',')
+            df.to_csv(outPath + '/' +fileName, sep=',')
         counter += 1
     print (str(counter) + " files are created with locations as file names")
     print ("done")
@@ -92,32 +91,34 @@ def readMap (fileName):
     
     
 #run the program
-def main():
-    fileAddress = '/home/victor/Desktop/TILES/data/light'
-    mapAddress = '/home/victor/Desktop/TILES/data/owl_minew_map'
-    outputAddress = '/home/victor/Desktop/TILES/data/owl_minew_map/light'
+def main(fileAddress, mapAddress, outputAddress):
+    #fileAddress = '/home/victor/Desktop/TILES/data/light'
+    #mapAddress = '/home/victor/Desktop/TILES/data/owl_minew_map'
+    #outputAddress = '/home/victor/Desktop/TILES/data/owl_minew_map/light'
     classfiedData = []
     sensors = []
     #save the current path
-    currentAd = os.getcwd()
+    #currentAd = os.getcwd()
     #change to the new directory 
-    os.chdir(fileAddress)
-    fileName = 'light.csv'
-    mapFile = 'minews_owl_map_v2.csv'
+    #os.chdir(fileAddress)
+    #fileName = 'light.csv'
+    #mapFile = 'minews_owl_map_v2.csv'
     classfiedData, sensors = loadData(fileName)
-    os.chdir(mapAddress)
+    #os.chdir(mapAddress)
     reference = readMap(mapFile)
-    os.chdir(outputAddress)
-    saveData(classfiedData, sensors, reference)
+    #os.chdir(outputAddress)
+    saveData(outputAddress, classfiedData, sensors, reference)
     #go back to the orginal path 
     os.chdir(currentAd)
 main()
-'''
+
 if __name__ == "__main__":
-    if len(argv) < 2:
+    if len(argv) < 4:
         print ("please input the directory of the files you want to process:")
-    address = argv[1]
-    print ("the address is: " + str(address))
-    main(address)
-'''
+    else:
+        inPath = argv[1]
+        mapPath = argv[2]
+        outPath = argv[3]
+        main(inPath, mapPath,outPath)
+
 
