@@ -109,7 +109,6 @@ def main(fileAddress, mapAddress, outputAddress):
     #os.chdir(outputAddress)
     saveData(outputAddress, classfiedData, sensors, reference)
     #go back to the orginal path 
-    os.chdir(currentAd)
 
 if __name__ == "__main__":
     if len(argv) < 4:
