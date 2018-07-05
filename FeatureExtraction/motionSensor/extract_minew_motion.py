@@ -14,7 +14,6 @@ from statistics import mode
 import numpy
 from sys import argv
 
-listA = []
 """
     read filenames in the given folder and store them in a list 
     Parameter: N/A
@@ -30,17 +29,11 @@ def readNamesOfAllFiles(path):
     #currentPath = os.getcwd()
     #print ("Current path: " + currentPath)
     #only .csv files remains
-    #fileNames = [x for x in os.listdir(path) if x.endswith("_features.csv")]
-    #fileNames = ['keck:floor2:southBLOOD:lounge01_features.csv', 'keck:floor2:southBLOOD:lounge01_1_features.csv']
-    #fileNames = ['keck:floor2:west:med2344_features.csv', 'keck:floor2:west:med2344_1_features.csv']
-    #fileNames = ['keck:floor5:east:med5343_features.csv', 'keck:floor5:north:med5232_features.csv', 'keck:floor5:north:med5232_1_features.csv']
-    #fileNames = ['keck:floor5:south:med5146_features.csv', 'keck:floor5:south:ns01_features.csv', 'keck:floor5:south:ns02_features.csv']
-    #fileNames = ['keck:floor5:west:med5334_features.csv', 'keck:floor5:west:ns01_features.csv', 'keck:floor5:west:ns03_features.csv']
-    fileNames = ['keck:floor7:east:med7335_features.csv']
+    fileNames = [x for x in os.listdir(path) if x.endswith("features.csv")]
     print("All .csv files under this path: ")
     print(fileNames)
     #drop files (i.e. temp_hum.csv)
-    dropList = ['minews_owl_map_v2.csv','motion.csv']
+    dropList = ['light.csv','motion.csv','temperature_humidity.csv']
     fileNameSet = set(fileNames) - set(dropList)
     
     #return the filenames 
@@ -62,10 +55,7 @@ def readNamesOfAllFiles(path):
 def readFiles(openFile, fileNameList, path):
     dataList = []
     for item in openFile:
-        print (fileNameList[item])
-        tempData = pandas.read_csv(fileNameList[item])
-        
-        tempData = tempData[['Timestamp','macAddress','accelerationX', 'accelerationY', 'accelerationZ']]
+        tempData = pandas.read_csv(fileNameList[item], index_col = False ,sep = ',')
         dataList.append(tempData)
     
     return dataList
@@ -81,12 +71,10 @@ def readFiles(openFile, fileNameList, path):
     return:
         accData: the processed data with a new column called "status"
 """
-def dataAnalysis(accData, fileNames):
+def dataAnalysis(accData):
     #a for loop, go through all items in the list
-    global listA 
-    for data, file in zip (accData, fileNames):
+    for data in accData:
         #load the features
-        print (file)
         aX = data['accelerationX']
         aY = data['accelerationY']
         aZ = data['accelerationZ']
@@ -143,7 +131,6 @@ def dataAnalysis(accData, fileNames):
                 
         #show the histgram         
         n,b,p = plt.hist(deriThetaList, bins = 51, range = (-1.5,1.5))
-        listA.append (max(n)/ len (data))
         plt.ylabel("Time Appears")
         plt.xlabel("d(theta)/dt")
         plt.title("histogram ")
@@ -157,13 +144,13 @@ def dataAnalysis(accData, fileNames):
             if i != 0 and i != len(deriThetaList) -1:
                 if deriThetaList[i]>threshold:
                     label.append(1)
+                elif deriThetaList[i]<-1*threshold:
+                    label.append(-1)
                 else:
                     label.append(0)
             thresh.append (threshold)
                 
-        data['doorStatus'] = label 
-        dropList = ['accelerationX', 'accelerationY', 'accelerationZ']
-        data = data.drop(columns = dropList)
+        data['status'] = label 
         
         #show a small portion of the data 
         plt.plot(deriThetaList[5200:5400])
@@ -175,7 +162,7 @@ def dataAnalysis(accData, fileNames):
         plt.show()
         print ('*********************************')
         
-    print (listA)
+            
     return accData
 
 """
@@ -250,13 +237,9 @@ def findKthBin(arr, k):
 """
 def addLabelToFiles(labledData, openFile, accDataFile, currentPath):
     i = 0
-    global listA 
-    mxi = max (listA)
     for index in openFile:
         #open the corresponding file:
         fileName = accDataFile[index]
-        if listA[index] == mxi:
-            print (fileName)
         labledData[i].to_csv(fileName, sep = ',',index = False)
         #print (labledData[i])
         i = i+1
@@ -270,7 +253,7 @@ def main(path):
     accDataFile = readNamesOfAllFiles(path)
     openFile = range(len(accDataFile))
     accData = readFiles(openFile, accDataFile, path)
-    labledData = dataAnalysis(accData, accDataFile)
+    labledData = dataAnalysis(accData)
     addLabelToFiles(labledData, openFile, accDataFile, currentPath)
     
     
