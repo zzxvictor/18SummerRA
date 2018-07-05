@@ -155,13 +155,13 @@ def dataAnalysis(accData):
         data['status'] = label 
         
         #show a small portion of the data 
-        #plt.plot(deriThetaList[5200:5400])
-        #plt.plot(thresh[5200:5400])
-        #plt.xlabel("samples")
-        #plt.ylabel("d(theta)/dt")
-        #plt.legend(("angle deriv","threshold"),loc='upper right')
-        #plt.title("sample of angle derivatives ")
-        #plt.show()
+        plt.plot(deriThetaList[5200:5400])
+        plt.plot(thresh[5200:5400])
+        plt.xlabel("samples")
+        plt.ylabel("d(theta)/dt")
+        plt.legend(("angle deriv","threshold"),loc='upper right')
+        plt.title("sample of angle derivatives ")
+        plt.show()
         print ('*********************************')
         
             
